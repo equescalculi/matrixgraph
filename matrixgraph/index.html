@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `matrixgraph` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, matrixgraph">
+
+    <title>matrixgraph - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'matrixgraph', ty: 'mod', relpath: '../'};</script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>matrixgraph</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/matrixgraph/lib.rs.html#9-66' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>A graph implementation based on dense adjacency matrices</p>
+
+<p><strong>WARNING!</strong> Please expect odd bugs and backward incompatible changes at
+this early stage!</p>
+
+<h1 id="features" class='section-header'><a
+                           href="#features">Features</a></h1>
+<p>Supported structs:</p>
+
+<ul>
+<li><code>SimpleGraph</code>: a simple graph represented by the upper right triangle
+of an adjacency matrix of fixed size</li>
+<li><code>Digraph</code>: a digraph represented by a dense adjacency matrix of fixed
+size</li>
+</ul>
+
+<h1 id="usage" class='section-header'><a
+                           href="#usage">Usage</a></h1>
+<p>Add this library as a crate to your project:</p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>matrixgraph</span>;
+</pre>
+
+<p>Define a graph:</p>
+<pre id='rust-example-rendered' class='rust '>
+<span class='kw'>use</span> <span class='ident'>matrixgraph</span>::{<span class='ident'>Digraph</span>, <span class='ident'>BasicGraphMethods</span>};
+
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>digraph</span> <span class='op'>=</span> <span class='ident'>Digraph</span>::<span class='ident'>new</span>(<span class='number'>3</span>);
+<span class='ident'>digraph</span>.<span class='ident'>set_edge</span>((<span class='number'>0</span>, <span class='number'>1</span>), <span class='prelude-val'>Some</span>(<span class='number'>1.0f64</span>));
+<span class='ident'>digraph</span>.<span class='ident'>set_edge</span>((<span class='number'>0</span>, <span class='number'>2</span>), <span class='prelude-val'>Some</span>(<span class='number'>4.0f64</span>));
+<span class='ident'>digraph</span>.<span class='ident'>set_edge</span>((<span class='number'>1</span>, <span class='number'>2</span>), <span class='prelude-val'>Some</span>(<span class='number'>2.0f64</span>));
+</pre>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Digraph.html'
+                               title='matrixgraph::Digraph'>Digraph</a></td>
+                        <td class='docblock short'>
+                             <p>A digraph represented by a dense adjacency matrix of fixed size</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.SimpleGraph.html'
+                               title='matrixgraph::SimpleGraph'>SimpleGraph</a></td>
+                        <td class='docblock short'>
+                             <p>A simple graph represented by the upper right triangle of an adjacency
+matrix of fixed size</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Graph.html'
+                               title='matrixgraph::Graph'>Graph</a></td>
+                        <td class='docblock short'>
+                             <p>An enum of structs representing graphs</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.BasicGraphMethods.html'
+                               title='matrixgraph::BasicGraphMethods'>BasicGraphMethods</a></td>
+                        <td class='docblock short'>
+                             <p>Provides basic graph methods.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&larrb;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&rarrb;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code>, <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
+            </p>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "matrixgraph";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>
