@@ -10,7 +10,8 @@
 /// matrix of fixed size
 
 use std::cmp;
-use traits::BasicGraphMethods;
+use traits::{BasicGraphMethods, GraphProperties, GraphErrors,
+             GraphAlgorithms, UndirectedGraphAlgorithms};
 
 /// A simple graph represented by the upper right triangle of an adjacency
 /// matrix of fixed size
@@ -109,11 +110,58 @@ impl BasicGraphMethods for SimpleGraph {
     }
 }
 
+impl GraphProperties for SimpleGraph {
+    fn is_loopfree(&self) -> bool {
+        true
+    }
+
+    fn is_symmetric(&self) -> bool {
+        true
+    }
+}
+
+impl GraphAlgorithms<SimpleGraph> for SimpleGraph {
+    // As negative edges in undirected graphs always lead to negative cycles
+    // when calculating the shortest paths, the Johnson's algorithm is
+    // identical to Dijkstra's algorithm.
+    fn johnson_graph(&self) -> Result<(SimpleGraph, Vec<f64>), GraphErrors> {
+        if !self.is_nonnegative() {
+            return Err(GraphErrors::ContainsNegativeCycle);
+        }
+        let size = self.size();
+        let nweights: Vec<Option<f64>> = self.to_vec();
+        let heights: Vec<f64> = vec![0.0f64; size];
+        Ok((SimpleGraph::from_vec(&nweights), heights))
+    }
+
+    fn johnson(&self, source: usize)
+            -> Result<(Vec<Option<f64>>, Vec<Option<usize>>), GraphErrors> {
+        assert!(source < self.size(), "The node index is out of range.");
+
+        match self.dijkstra(source) {
+            Err(GraphErrors::ContainsNegativeEdge)
+                => Err(GraphErrors::ContainsNegativeCycle),
+            Err(f) => Err(f),
+            Ok(m) => Ok(m)
+        }
+    }
+
+    fn johnson_all(&self)
+            -> Vec<Result<(Vec<Option<f64>>, Vec<Option<usize>>),
+                          GraphErrors>> {
+        (0..self.size()).map(|i| self.johnson(i)).collect()
+    }
+}
+
+impl UndirectedGraphAlgorithms for SimpleGraph {
+}
+
 // TESTS
 
 #[cfg(test)]
 mod test {
-    use traits::BasicGraphMethods;
+    use traits::{BasicGraphMethods, GraphProperties, GraphErrors,
+                 GraphAlgorithms, UndirectedGraphAlgorithms};
 
     #[test]
     fn test_graph_construction_1() {
@@ -139,9 +187,25 @@ mod test {
            g.get_edge((3, 0)), g.get_edge((3, 1)),
            g.get_edge((3, 2)), g.get_edge((3, 3)),
         ];
+        let nbh_0: Vec<usize> = vec![1, 3].into_iter().collect();
+        let nbh_1: Vec<usize> = vec![0, 2, 3].into_iter().collect();
+        let nbh_2: Vec<usize> = vec![1].into_iter().collect();
+        let nbh_3: Vec<usize> = vec![0, 1].into_iter().collect();
         assert_eq!(edges1, w1);
         assert_eq!(g.to_digraph_vec(), w1);
         assert_eq!(g.size(), 4);
+        assert_eq!(g.is_loopfree(), true);
+        assert_eq!(g.is_nonnegative(), false);
+        assert_eq!(g.is_complete(), false);
+        assert_eq!(g.is_symmetric(), true);
+        assert_eq!(g.predecessors(0), nbh_0);
+        assert_eq!(g.successors(0), nbh_0);
+        assert_eq!(g.predecessors(1), nbh_1);
+        assert_eq!(g.successors(1), nbh_1);
+        assert_eq!(g.predecessors(2), nbh_2);
+        assert_eq!(g.successors(2), nbh_2);
+        assert_eq!(g.predecessors(3), nbh_3);
+        assert_eq!(g.successors(3), nbh_3);
 
         g.set_edge((0, 2), Some(1.0f64));
         g.set_edge((3, 2), Some(3.0f64));
@@ -165,9 +229,25 @@ mod test {
            g.get_edge((3, 0)), g.get_edge((3, 1)),
            g.get_edge((3, 2)), g.get_edge((3, 3)),
         ];
+        let nbh_0_new: Vec<usize> = vec![1, 2, 3].into_iter().collect();
+        let nbh_1_new: Vec<usize> = vec![0, 2, 3].into_iter().collect();
+        let nbh_2_new: Vec<usize> = vec![0, 1, 3].into_iter().collect();
+        let nbh_3_new: Vec<usize> = vec![0, 1, 2].into_iter().collect();
         assert_eq!(edges2, w2);
         assert_eq!(g.to_digraph_vec(), w2);
         assert_eq!(g.size(), 4);
+        assert_eq!(g.is_loopfree(), true);
+        assert_eq!(g.is_nonnegative(), true);
+        assert_eq!(g.is_complete(), true);
+        assert_eq!(g.is_symmetric(), true);
+        assert_eq!(g.predecessors(0), nbh_0_new);
+        assert_eq!(g.successors(0), nbh_0_new);
+        assert_eq!(g.predecessors(1), nbh_1_new);
+        assert_eq!(g.successors(1), nbh_1_new);
+        assert_eq!(g.predecessors(2), nbh_2_new);
+        assert_eq!(g.successors(2), nbh_2_new);
+        assert_eq!(g.predecessors(3), nbh_3_new);
+        assert_eq!(g.successors(3), nbh_3_new);
     }
 
     #[test]
@@ -215,5 +295,70 @@ mod test {
     fn test_graph_construction_7() {
         let mut g = super::SimpleGraph::new(2);
         g.set_edge((1, 1), Some((1.0f64)));
+    }
+
+    #[test]
+    fn test_shortest_paths_1() {
+        let g = super::SimpleGraph::from_vec(&vec![
+            Some(2.0f64), None,
+            Some(-1.0f64)
+        ]);
+        assert_eq!(g.dijkstra(0), Err(GraphErrors::ContainsNegativeEdge));
+        assert_eq!(g.johnson(0), Err(GraphErrors::ContainsNegativeCycle));
+    }
+
+    #[test]
+    fn test_shortest_paths_2() {
+        let g = super::SimpleGraph::from_vec(&vec![
+            Some(2.0f64), Some(4.5f64), None,
+            Some(3.0f64), Some(0.0f64),
+            Some(2.0f64)
+        ]);
+        let d: Result<(Vec<Option<f64>>, Vec<Option<usize>>), GraphErrors>
+            = Ok((vec![Some(0.0f64), Some(2.0f64), Some(4.0f64),
+                       Some(2.0f64)],
+                  vec![None, Some(0), Some(3), Some(1)]));
+        assert_eq!(g.dijkstra(0), d);
+        assert_eq!(g.johnson(0), d);
+    }
+
+    #[test]
+    fn test_components_1() {
+        let g = super::SimpleGraph::from_vec(&vec![
+            None, None, None, None, Some(1.0f64),
+            None, None, None, None,
+            None, None, Some(1.0f64),
+            Some(1.0f64), None,
+            None
+        ]);
+        let c = vec![vec![0, 2, 5], vec![1], vec![3, 4]];
+        assert_eq!(g.components(), c);
+    }
+
+    #[test]
+    fn test_prim_1() {
+        let g = super::SimpleGraph::from_vec(&vec![
+            Some(2.0f64), Some(3.0f64), None, None,
+            Some(1.0f64), Some(4.0f64), Some(-1.0f64),
+            Some(1.0f64), Some(2.0f64),
+            Some(5.0f64)
+        ]);
+        let mst: Vec<(usize, usize)> = vec![
+            (0, 1), (1, 4), (1, 2), (2, 3)
+        ];
+        assert_eq!(g.prim(), mst);
+    }
+
+    #[test]
+    fn test_prim_2() {
+        let g = super::SimpleGraph::from_vec(&vec![
+            Some(1.0f64), None, None,
+            None, None,
+            Some(2.0f64)
+        ]);
+        let mst: Vec<(usize, usize)> = vec![
+            (0, 1), (2, 3)
+        ];
+        assert_eq!(g.prim(), mst);
     }
 }
