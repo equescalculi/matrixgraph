@@ -1,0 +1,16 @@
+[package]
+name = "matrixgraph"
+version = "0.1.0"
+authors = ["Marius Ritter"]
+license = "MIT/Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/equescalculi/matrixgraph"
+documentation = "https://equescalculi.github.io/matrixgraph"
+description = """
+A graph implementation based on dense adjacency matrices
+"""
+keywords = ["graph"]
+
+[lib]
+name = "matrixgraph"
+path = "src/lib.rs"
